@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Agendar Consulta - Sistema de Gestão de Pacientes{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="display-5">
+            <i class="fas fa-calendar-plus me-2"></i> Agendar Nova Consulta
+        </h1>
+        <p class="text-muted">Preencha as informações para agendar uma consulta</p>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form action="{{ url_for('agendar') }}" method="POST">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h4 class="card-title border-bottom pb-2">
+                        <i class="fas fa-calendar-day me-2"></i> Informações da Consulta
+                    </h4>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <div class="form-group mb-3">
+                        <label for="paciente_id" class="form-label">Selecione o Paciente *</label>
+                        <select class="form-select" id="paciente_id" name="paciente_id" required>
+                            <option value="">Selecione um paciente</option>
+                            {% for paciente in pacientes %}
+                            <option value="{{ paciente.id }}">{{ paciente.nome }} {% if paciente.cpf %}(CPF: {{ paciente.cpf }}){% endif %}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label for="data_consulta" class="form-label">Data da Consulta *</label>
+                        <input type="date" class="form-control" id="data_consulta" name="data_consulta" value="{{ today() }}" required>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label for="hora_consulta" class="form-label">Horário *</label>
+                        <input type="time" class="form-control" id="hora_consulta" name="hora_consulta" required>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <div class="form-group mb-3">
+                        <label for="tipo_consulta" class="form-label">Tipo de Consulta *</label>
+                        <select class="form-select" id="tipo_consulta" name="tipo_consulta" required>
+                            <option value="">Selecione o tipo de consulta</option>
+                            <option value="Primeira Consulta">Primeira Consulta</option>
+                            <option value="Retorno">Retorno</option>
+                            <option value="Urgência">Urgência</option>
+                            <option value="Avaliação">Avaliação</option>
+                            <option value="Exame">Exame</option>
+                            <option value="Procedimento">Procedimento</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <div class="form-group mb-3">
+                        <label for="observacao" class="form-label">Observações</label>
+                        <textarea class="form-control" id="observacao" name="observacao" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12 d-flex justify-content-between">
+                    <a href="{{ url_for('agenda') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Voltar
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-calendar-check me-1"></i> Agendar Consulta
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set default time for appointment (8:00 AM)
+        if (!document.getElementById('hora_consulta').value) {
+            document.getElementById('hora_consulta').value = '08:00';
+        }
+    });
+</script>
+{% endblock %}

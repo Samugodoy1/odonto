@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block title %}Agenda de Consultas - Sistema de Gestão de Pacientes{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="display-5">
+            <i class="fas fa-calendar-alt me-2"></i> Agenda de Consultas
+        </h1>
+        <p class="text-muted">Consultas agendadas por dia</p>
+    </div>
+    <div class="col-md-4 text-md-end d-flex flex-column justify-content-center">
+        <a href="{{ url_for('agendar') }}" class="btn btn-success">
+            <i class="fas fa-plus-circle me-1"></i> Nova Consulta
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary bg-opacity-75">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-calendar-day me-2"></i> Consultas do Dia
+                </h5>
+            </div>
+            <div class="col-md-6">
+                <form action="{{ url_for('agenda') }}" method="GET" class="d-flex">
+                    <input type="date" class="form-control me-2" name="data" value="{{ data_filtro }}" onchange="this.form.submit()">
+                    <button type="submit" class="btn btn-light btn-sm">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if agendamentos %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Horário</th>
+                            <th>Paciente</th>
+                            <th>Tipo de Consulta</th>
+                            <th>Status</th>
+                            <th>Observação</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for agendamento in agendamentos %}
+                        <tr class="{% if agendamento.status == 'cancelada' %}table-danger{% elif agendamento.status == 'concluida' %}table-success{% elif agendamento.status == 'faltou' %}table-warning{% endif %}">
+                            <td>{{ agendamento.hora_consulta }}</td>
+                            <td>
+                                <a href="{{ url_for('paciente', id=agendamento.paciente_id) }}">
+                                    {{ agendamento.paciente_nome }}
+                                </a>
+                            </td>
+                            <td>{{ agendamento.tipo_consulta }}</td>
+                            <td>
+                                <span class="badge {% if agendamento.status == 'agendada' %}bg-primary{% elif agendamento.status == 'concluida' %}bg-success{% elif agendamento.status == 'cancelada' %}bg-danger{% elif agendamento.status == 'faltou' %}bg-warning{% endif %}">
+                                    {{ agendamento.status|title }}
+                                </span>
+                            </td>
+                            <td>{{ agendamento.observacao or '-' }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-cog"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#statusModal{{ agendamento.id }}">
+                                                <i class="fas fa-exchange-alt me-1"></i> Alterar Status
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#deleteModal{{ agendamento.id }}">
+                                                <i class="fas fa-trash me-1"></i> Excluir
+                                            </button>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ url_for('paciente', id=agendamento.paciente_id) }}">
+                                                <i class="fas fa-folder-open me-1"></i> Ver Prontuário
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                <!-- Status Modal -->
+                                <div class="modal fade" id="statusModal{{ agendamento.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Alterar Status da Consulta</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form action="{{ url_for('atualizar_consulta', agendamento_id=agendamento.id) }}" method="POST">
+                                                <div class="modal-body">
+                                                    <input type="hidden" name="data_consulta" value="{{ data_filtro }}">
+                                                    <div class="form-group">
+                                                        <label class="form-label">Paciente:</label>
+                                                        <p class="form-control-static">{{ agendamento.paciente_nome }}</p>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="form-label">Data/Hora:</label>
+                                                        <p class="form-control-static">{{ agendamento.data_consulta }} às {{ agendamento.hora_consulta }}</p>
+                                                    </div>
+                                                    <div class="form-group mb-3">
+                                                        <label for="status" class="form-label">Novo Status:</label>
+                                                        <select class="form-select" id="status" name="status" required>
+                                                            <option value="agendada" {% if agendamento.status == 'agendada' %}selected{% endif %}>Agendada</option>
+                                                            <option value="concluida" {% if agendamento.status == 'concluida' %}selected{% endif %}>Concluída</option>
+                                                            <option value="cancelada" {% if agendamento.status == 'cancelada' %}selected{% endif %}>Cancelada</option>
+                                                            <option value="faltou" {% if agendamento.status == 'faltou' %}selected{% endif %}>Faltou</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                    <button type="submit" class="btn btn-primary">Salvar</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Delete Modal -->
+                                <div class="modal fade" id="deleteModal{{ agendamento.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Excluir Agendamento</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Tem certeza que deseja excluir o agendamento de <strong>{{ agendamento.paciente_nome }}</strong> para o dia <strong>{{ agendamento.data_consulta }}</strong> às <strong>{{ agendamento.hora_consulta }}</strong>?</p>
+                                                <p class="text-danger"><strong>Atenção:</strong> Esta ação não pode ser desfeita.</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                <form action="{{ url_for('excluir_agendamento', agendamento_id=agendamento.id) }}" method="POST">
+                                                    <input type="hidden" name="data_consulta" value="{{ data_filtro }}">
+                                                    <button type="submit" class="btn btn-danger">Excluir</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <h4 class="alert-heading">Nenhuma consulta agendada</h4>
+                <p>Não há consultas agendadas para {{ data_filtro }}.</p>
+                <hr>
+                <a href="{{ url_for('agendar') }}" class="btn btn-success">
+                    <i class="fas fa-plus-circle me-1"></i> Agendar Nova Consulta
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-primary bg-opacity-75">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-info-circle me-2"></i> Legenda de Status
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 mb-2">
+                <span class="badge bg-primary me-1">Agendada</span>
+                Consulta marcada
+            </div>
+            <div class="col-md-3 mb-2">
+                <span class="badge bg-success me-1">Concluída</span>
+                Atendimento realizado
+            </div>
+            <div class="col-md-3 mb-2">
+                <span class="badge bg-danger me-1">Cancelada</span>
+                Consulta desmarcada
+            </div>
+            <div class="col-md-3 mb-2">
+                <span class="badge bg-warning me-1">Faltou</span>
+                Paciente não compareceu
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,459 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ paciente.nome }} - Prontuário{% endblock %}
+
+{% block content %}
+<!-- Patient header section -->
+<div class="row mb-4 print-header">
+    <div class="col-md-8">
+        <h1 class="display-5">
+            <i class="fas fa-user-circle me-2"></i> {{ paciente.nome }}
+        </h1>
+        <p class="text-muted">Prontuário do Paciente</p>
+    </div>
+    <div class="col-md-4 text-md-end d-flex justify-content-md-end align-items-center no-print">
+        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-arrow-left me-1"></i> Voltar
+        </a>
+        <button id="printRecord" class="btn btn-outline-primary">
+            <i class="fas fa-print me-1"></i> Imprimir
+        </button>
+    </div>
+</div>
+
+<!-- Patient information card -->
+<div class="card shadow-sm mb-4 print-section">
+    <div class="card-header bg-primary bg-opacity-75">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-info-circle me-2"></i> Informações Pessoais
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <!-- Personal Information -->
+            <div class="col-md-6">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span><i class="fas fa-id-card me-2"></i> CPF:</span>
+                        <span class="text-muted">{{ paciente.cpf or 'Não informado' }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span><i class="fas fa-birthday-cake me-2"></i> Data de Nascimento:</span>
+                        <span class="text-muted">{{ paciente.nascimento or 'Não informado' }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span><i class="fas fa-venus-mars me-2"></i> Gênero:</span>
+                        <span class="text-muted">{{ paciente.genero or 'Não informado' }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span><i class="fas fa-phone me-2"></i> Telefone:</span>
+                        <span class="text-muted">{{ paciente.telefone or 'Não informado' }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span><i class="fas fa-map-marker-alt me-2"></i> Endereço:</span>
+                        <span class="text-muted">{{ paciente.endereco or 'Não informado' }}</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Medical Information -->
+            <div class="col-md-6">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <span><i class="fas fa-heartbeat me-2"></i> <strong>Doenças Preexistentes:</strong></span>
+                        <p class="mt-1 text-muted">{{ paciente.doencas or 'Nenhuma informada' }}</p>
+                    </li>
+                    <li class="list-group-item">
+                        <span><i class="fas fa-pills me-2"></i> <strong>Medicamentos em Uso:</strong></span>
+                        <p class="mt-1 text-muted">{{ paciente.medicamentos or 'Nenhum informado' }}</p>
+                    </li>
+                    <li class="list-group-item">
+                        <span><i class="fas fa-exclamation-triangle me-2"></i> <strong>Alergias:</strong></span>
+                        <p class="mt-1 text-muted">{{ paciente.alergias or 'Nenhuma informada' }}</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Additional Medical Information -->
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header py-2">
+                        <h6 class="mb-0"><i class="fas fa-procedures me-2"></i> Cirurgias Anteriores</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">{{ paciente.cirurgias or 'Nenhuma informada' }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header py-2">
+                        <h6 class="mb-0"><i class="fas fa-smoking me-2"></i> Hábitos</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">{{ paciente.habitos or 'Nenhum informado' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header py-2">
+                        <h6 class="mb-0"><i class="fas fa-clipboard-list me-2"></i> Observações Adicionais</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">{{ paciente.observacoes or 'Nenhuma observação' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer text-center no-print">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editPatientModal">
+            <i class="fas fa-edit me-1"></i> Editar Informações
+        </button>
+    </div>
+</div>
+
+<!-- Patient records tabs -->
+<ul class="nav nav-tabs mb-4 patient-tabs no-print" id="patientTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="evolucoes-tab" data-bs-toggle="tab" data-bs-target="#evolucoes" type="button" role="tab" aria-controls="evolucoes" aria-selected="true">
+            <i class="fas fa-clipboard me-1"></i> Evoluções
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="radiografias-tab" data-bs-toggle="tab" data-bs-target="#radiografias" type="button" role="tab" aria-controls="radiografias" aria-selected="false">
+            <i class="fas fa-x-ray me-1"></i> Radiografias
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="patientTabsContent">
+    <!-- Evolution Records Tab -->
+    <div class="tab-pane fade show active" id="evolucoes" role="tabpanel" aria-labelledby="evolucoes-tab">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary bg-opacity-75 d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-clipboard-list me-2"></i> Histórico de Atendimentos
+                </h5>
+                <button type="button" class="btn btn-light btn-sm no-print" data-bs-toggle="modal" data-bs-target="#addEvolutionModal">
+                    <i class="fas fa-plus-circle me-1"></i> Nova Evolução
+                </button>
+            </div>
+            <div class="card-body">
+                {% if evolucoes %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Procedimento</th>
+                                <th>Supervisor</th>
+                                <th>Observação</th>
+                                <th class="no-print">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for evolucao in evolucoes %}
+                            <tr>
+                                <td>{{ evolucao.data }}</td>
+                                <td>{{ evolucao.procedimento }}</td>
+                                <td>{{ evolucao.supervisor or '-' }}</td>
+                                <td>{{ evolucao.observacao[:50] ~ '...' if evolucao.observacao and evolucao.observacao|length > 50 else evolucao.observacao or '-' }}</td>
+                                <td class="no-print">
+                                    <a href="{{ url_for('consulta', evolucao_id=evolucao.id) }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <form action="{{ url_for('excluir_evolucao', evolucao_id=evolucao.id) }}" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-danger btn-delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-0">Nenhum registro de atendimento encontrado para este paciente.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Radiographs Tab -->
+    <div class="tab-pane fade" id="radiografias" role="tabpanel" aria-labelledby="radiografias-tab">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary bg-opacity-75 d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-x-ray me-2"></i> Radiografias
+                </h5>
+                <button type="button" class="btn btn-light btn-sm no-print" data-bs-toggle="modal" data-bs-target="#addRadiographModal">
+                    <i class="fas fa-upload me-1"></i> Upload de Radiografia
+                </button>
+            </div>
+            <div class="card-body">
+                {% if radios %}
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    {% for radio in radios %}
+                    <div class="col">
+                        <div class="card h-100">
+                            <img src="{{ url_for('static', filename='radiografias/' + radio.nome_arquivo) }}" 
+                                 class="card-img-top radiograph-thumbnail" alt="Radiografia" 
+                                 data-description="{{ radio.descricao or '' }}">
+                            <div class="card-body">
+                                <h6 class="card-title">{{ radio.nome_arquivo }}</h6>
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i> {{ radio.data_upload[:10] if radio.data_upload else 'Data desconhecida' }}
+                                    </small>
+                                </p>
+                                {% if radio.descricao %}
+                                <p class="card-text">{{ radio.descricao }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="card-footer text-center no-print">
+                                <form action="{{ url_for('excluir_radiografia', radiografia_id=radio.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-danger btn-delete">
+                                        <i class="fas fa-trash me-1"></i> Excluir
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-0">Nenhuma radiografia encontrada para este paciente.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+<!-- Edit Patient Modal -->
+<div class="modal fade" id="editPatientModal" tabindex="-1" aria-labelledby="editPatientModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editPatientModalLabel">Editar Informações do Paciente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('editar', id=paciente.id) }}" method="POST">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="nome" class="form-label">Nome Completo *</label>
+                                <input type="text" class="form-control" id="nome" name="nome" value="{{ paciente.nome }}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label for="cpf" class="form-label">CPF *</label>
+                                <input type="text" class="form-control" id="cpf" name="cpf" value="{{ paciente.cpf }}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label for="nascimento" class="form-label">Data de Nascimento</label>
+                                <input type="date" class="form-control" id="nascimento" name="nascimento" value="{{ paciente.nascimento }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label for="telefone" class="form-label">Telefone</label>
+                                <input type="tel" class="form-control" id="telefone" name="telefone" value="{{ paciente.telefone }}">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-2">
+                            <div class="form-group mb-3">
+                                <label for="genero" class="form-label">Gênero</label>
+                                <select class="form-select" id="genero" name="genero">
+                                    <option value="">Selecione</option>
+                                    <option value="Masculino" {% if paciente.genero == 'Masculino' %}selected{% endif %}>Masculino</option>
+                                    <option value="Feminino" {% if paciente.genero == 'Feminino' %}selected{% endif %}>Feminino</option>
+                                    <option value="Outro" {% if paciente.genero == 'Outro' %}selected{% endif %}>Outro</option>
+                                    <option value="Não informado" {% if paciente.genero == 'Não informado' %}selected{% endif %}>Prefiro não informar</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="endereco" class="form-label">Endereço</label>
+                                <input type="text" class="form-control" id="endereco" name="endereco" value="{{ paciente.endereco }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="doencas" class="form-label">Doenças Preexistentes</label>
+                                <textarea class="form-control" id="doencas" name="doencas" rows="2">{{ paciente.doencas }}</textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="medicamentos" class="form-label">Medicamentos em Uso</label>
+                                <textarea class="form-control" id="medicamentos" name="medicamentos" rows="2">{{ paciente.medicamentos }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="alergias" class="form-label">Alergias</label>
+                                <textarea class="form-control" id="alergias" name="alergias" rows="2">{{ paciente.alergias }}</textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="cirurgias" class="form-label">Cirurgias Anteriores</label>
+                                <textarea class="form-control" id="cirurgias" name="cirurgias" rows="2">{{ paciente.cirurgias }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="habitos" class="form-label">Hábitos (fumo, álcool, etc)</label>
+                                <textarea class="form-control" id="habitos" name="habitos" rows="2">{{ paciente.habitos }}</textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="observacoes" class="form-label">Observações Adicionais</label>
+                                <textarea class="form-control" id="observacoes" name="observacoes" rows="2">{{ paciente.observacoes }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Evolution Modal -->
+<div class="modal fade" id="addEvolutionModal" tabindex="-1" aria-labelledby="addEvolutionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addEvolutionModalLabel">Nova Evolução</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('evolucao', id=paciente.id) }}" method="POST" onsubmit="return validateEvolutionForm()">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="data" class="form-label">Data do Atendimento *</label>
+                                <input type="date" class="form-control" id="data" name="data" value="{{ today() }}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="supervisor" class="form-label">Supervisor/Dentista</label>
+                                <input type="text" class="form-control" id="supervisor" name="supervisor">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="form-group mb-3">
+                                <label for="procedimento" class="form-label">Procedimento Realizado *</label>
+                                <input type="text" class="form-control" id="procedimento" name="procedimento" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="form-group mb-3">
+                                <label for="observacao" class="form-label">Observação</label>
+                                <textarea class="form-control" id="observacao" name="observacao" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="form-group mb-3">
+                                <label for="detalhes" class="form-label">Detalhes do Procedimento</label>
+                                <textarea class="form-control" id="detalhes" name="detalhes" rows="5"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Salvar Evolução</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Radiograph Modal -->
+<div class="modal fade" id="addRadiographModal" tabindex="-1" aria-labelledby="addRadiographModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addRadiographModalLabel">Upload de Radiografia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('upload_radiografia', id=paciente.id) }}" method="POST" enctype="multipart/form-data" onsubmit="return validateRadiographForm()">
+                    <div class="form-group mb-3">
+                        <label for="radiografia" class="form-label">Selecione a Radiografia</label>
+                        <input type="file" class="form-control" id="radiografia" name="radiografia" accept="image/*" required>
+                        <div class="form-text">Formatos aceitos: JPG, PNG, GIF</div>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="descricao" class="form-label">Descrição</label>
+                        <textarea class="form-control" id="descricao" name="descricao" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Enviar Radiografia</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

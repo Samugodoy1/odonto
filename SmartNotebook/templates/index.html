@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Pacientes - Sistema de Gestão de Pacientes{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="display-5">
+            <i class="fas fa-users me-2"></i> Pacientes
+        </h1>
+        {% if query %}
+        <p>Resultados da busca por: <strong>{{ query }}</strong></p>
+        {% endif %}
+    </div>
+    <div class="col-md-4 text-md-end d-flex flex-column justify-content-center">
+        <a href="{{ url_for('cadastro') }}" class="btn btn-success">
+            <i class="fas fa-plus-circle me-1"></i> Novo Paciente
+        </a>
+    </div>
+</div>
+
+{% if pacientes %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for paciente in pacientes %}
+        <div class="col">
+            <div class="card h-100 patient-card">
+                <div class="card-header bg-primary bg-opacity-75">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user-circle me-2"></i>{{ paciente.nome }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        <i class="fas fa-id-card me-2"></i> <strong>CPF:</strong> {{ paciente.cpf or 'Não informado' }}
+                    </p>
+                    
+                    {% if paciente.nascimento %}
+                    <p class="card-text">
+                        <i class="fas fa-birthday-cake me-2"></i> <strong>Nascimento:</strong> {{ paciente.nascimento }}
+                    </p>
+                    {% endif %}
+                    
+                    {% if paciente.telefone %}
+                    <p class="card-text">
+                        <i class="fas fa-phone me-2"></i> <strong>Telefone:</strong> {{ paciente.telefone }}
+                    </p>
+                    {% endif %}
+                    
+                    <!-- Medical alerts -->
+                    {% if paciente.alergias and paciente.alergias.strip() %}
+                    <div class="alert alert-danger py-1 px-2 mt-2">
+                        <i class="fas fa-exclamation-triangle me-1"></i> <strong>Alergias:</strong> {{ paciente.alergias }}
+                    </div>
+                    {% endif %}
+                    
+                    {% if paciente.doencas and paciente.doencas.strip() %}
+                    <div class="alert alert-warning py-1 px-2 mt-2">
+                        <i class="fas fa-heartbeat me-1"></i> <strong>Doenças:</strong> {{ paciente.doencas }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('paciente', id=paciente.id) }}" class="btn btn-primary w-100">
+                        <i class="fas fa-folder-open me-1"></i> Ver Prontuário
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        {% if query %}
+        <h4 class="alert-heading">Nenhum resultado encontrado</h4>
+        <p>Não foram encontrados pacientes com os termos de busca <strong>"{{ query }}"</strong>.</p>
+        <hr>
+        <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-1"></i> Voltar para lista completa
+        </a>
+        {% else %}
+        <h4 class="alert-heading">Nenhum paciente cadastrado</h4>
+        <p>O sistema ainda não possui pacientes cadastrados.</p>
+        <hr>
+        <a href="{{ url_for('cadastro') }}" class="btn btn-success">
+            <i class="fas fa-user-plus me-1"></i> Cadastrar Primeiro Paciente
+        </a>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}
