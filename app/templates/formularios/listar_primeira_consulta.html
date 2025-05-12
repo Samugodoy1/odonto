@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Formulários de Primeira Consulta</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2">
+        <i class="bi bi-clipboard-data"></i> Formulários de Primeira Consulta
+    </h1>
+    <div>
+        <a href="{{ url_for('criar_formulario_primeira_consulta') }}" class="btn btn-primary">
+            <i class="bi bi-plus"></i> Novo Formulário
+        </a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="bi bi-filter"></i> Filtros
+            </h5>
+            <a class="btn btn-sm btn-link" data-bs-toggle="collapse" href="#collapseFiltros" role="button" aria-expanded="false" aria-controls="collapseFiltros">
+                <i class="bi bi-caret-down"></i>
+            </a>
+        </div>
+    </div>
+    <div class="collapse" id="collapseFiltros">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="pendente" {% if status_filtro == 'pendente' %}selected{% endif %}>Pendente</option>
+                        <option value="preenchido" {% if status_filtro == 'preenchido' %}selected{% endif %}>Preenchido</option>
+                    </select>
+                </div>
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i> Filtrar
+                    </button>
+                    <a href="{{ url_for('listar_formularios_primeira_consulta') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Limpar Filtros
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Formulário</th>
+                        <th>Status</th>
+                        <th>Data de Criação</th>
+                        <th>Preenchido em</th>
+                        <th>Paciente</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if formularios.items %}
+                        {% for formulario in formularios.items %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('detalhe_formulario_primeira_consulta', formulario_id=formulario.id) }}" class="fw-medium">
+                                        Formulário #{{ formulario.id }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if formulario.status == 'pendente' %}
+                                        <span class="badge bg-warning">Pendente</span>
+                                    {% elif formulario.status == 'preenchido' %}
+                                        <span class="badge bg-success">Preenchido</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ format_datetime(formulario.data_criacao) }}</td>
+                                <td>
+                                    {% if formulario.data_preenchimento %}
+                                        {{ format_datetime(formulario.data_preenchimento) }}
+                                    {% else %}
+                                        <span class="text-muted">Não preenchido</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if formulario.nome %}
+                                        {{ formulario.nome }}
+                                    {% else %}
+                                        <span class="text-muted">Não informado</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group">
+                                        {% if formulario.status == 'preenchido' %}
+                                            <a href="{{ url_for('criar_paciente_de_formulario', formulario_id=formulario.id) }}" class="btn btn-sm btn-outline-primary" title="Criar Paciente">
+                                                <i class="bi bi-person-plus"></i>
+                                            </a>
+                                        {% endif %}
+                                        
+                                        <a href="{{ url_for('detalhe_formulario_primeira_consulta', formulario_id=formulario.id) }}" class="btn btn-sm btn-outline-secondary" title="Ver Detalhes">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        
+                                        {% if formulario.status == 'pendente' %}
+                                            <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#linkModal{{ formulario.id }}" title="Obter Link">
+                                                <i class="bi bi-link-45deg"></i>
+                                            </button>
+                                            
+                                            <!-- Modal para exibir o link -->
+                                            <div class="modal fade" id="linkModal{{ formulario.id }}" tabindex="-1" aria-labelledby="linkModalLabel{{ formulario.id }}" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="linkModalLabel{{ formulario.id }}">
+                                                                Link do Formulário
+                                                            </h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>Compartilhe este link com o paciente:</p>
+                                                            <div class="input-group mb-3">
+                                                                <input type="text" class="form-control" id="token-url-{{ formulario.id }}" value="{{ url_for('preencher_formulario_primeira_consulta', token=formulario.token, _external=True) }}" readonly>
+                                                                <button class="btn btn-primary" type="button" onclick="copyToClipboard('token-url-{{ formulario.id }}')">
+                                                                    <i class="bi bi-clipboard"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <p class="text-muted mb-0">Nenhum formulário encontrado.</p>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    {% if formularios.pages > 1 %}
+    <div class="card-footer">
+        <nav aria-label="Navegação de páginas">
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item {% if not formularios.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('listar_formularios_primeira_consulta', page=formularios.prev_num, status=status_filtro) if formularios.has_prev else '#' }}">Anterior</a>
+                </li>
+                
+                {% for page_num in range(1, formularios.pages + 1) %}
+                    <li class="page-item {% if page_num == formularios.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('listar_formularios_primeira_consulta', page=page_num, status=status_filtro) }}">
+                            {{ page_num }}
+                        </a>
+                    </li>
+                {% endfor %}
+                
+                <li class="page-item {% if not formularios.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('listar_formularios_primeira_consulta', page=formularios.next_num, status=status_filtro) if formularios.has_next else '#' }}">Próxima</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyToClipboard(elementId) {
+    var copyText = document.getElementById(elementId);
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+    
+    // Feedback visual
+    let button = document.querySelector(`#${elementId}`).nextElementSibling;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="bi bi-check"></i>';
+    button.classList.add('btn-success');
+    button.classList.remove('btn-primary');
+    
+    setTimeout(() => {
+        button.innerHTML = originalText;
+        button.classList.add('btn-primary');
+        button.classList.remove('btn-success');
+    }, 2000);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('listar_pacientes_anamnese') }}">Enviar Anamnese</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Confirmar Envio</li>
+    </ol>
+</nav>
+
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h2">
+            <i class="bi bi-send-check"></i> Confirmar Envio de Formulário
+        </h1>
+        <p class="text-muted">Paciente: {{ paciente.nome }}</p>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <i class="bi bi-envelope"></i> Envio de Formulário de Anamnese
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-info">
+            <div class="d-flex">
+                <div class="me-3">
+                    <i class="bi bi-info-circle-fill fs-4"></i>
+                </div>
+                <div>
+                    <h5>Informações sobre o envio</h5>
+                    <p class="mb-0">Um link para preenchimento do formulário de anamnese será enviado para o e-mail: <strong>{{ paciente.email }}</strong></p>
+                </div>
+            </div>
+        </div>
+        
+        <form method="POST" action="{{ url_for('enviar_anamnese', paciente_id=paciente.id) }}">
+            <div class="mb-4">
+                <label class="form-label">Vincular a uma consulta agendada:</label>
+                
+                {% if proximos_agendamentos %}
+                    <div class="list-group">
+                        <label class="list-group-item">
+                            <input class="form-check-input me-1" type="radio" name="agendamento_id" value="" checked>
+                            <span>Não vincular a nenhuma consulta</span>
+                        </label>
+                        
+                        {% for agendamento in proximos_agendamentos %}
+                            <label class="list-group-item">
+                                <input class="form-check-input me-1" type="radio" name="agendamento_id" value="{{ agendamento.id }}">
+                                <span>{{ format_date(agendamento.data_consulta) }} às {{ agendamento.hora_consulta }} - {{ agendamento.tipo_consulta }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <i class="bi bi-calendar-x"></i> Não há consultas agendadas para este paciente.
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('listar_pacientes_anamnese') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-envelope-paper"></i> Enviar Formulário
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

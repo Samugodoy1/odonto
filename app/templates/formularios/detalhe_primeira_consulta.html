@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('listar_formularios_primeira_consulta') }}">Formulários de Primeira Consulta</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Detalhes do Formulário</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2">
+        <i class="bi bi-clipboard-data"></i> Detalhes do Formulário
+        {% if formulario.status == 'pendente' %}
+            <span class="badge bg-warning">Pendente</span>
+        {% elif formulario.status == 'preenchido' %}
+            <span class="badge bg-success">Preenchido</span>
+        {% endif %}
+    </h1>
+    <div>
+        {% if formulario.status == 'preenchido' %}
+            <a href="{{ url_for('criar_paciente_de_formulario', formulario_id=formulario.id) }}" class="btn btn-primary">
+                <i class="bi bi-person-plus"></i> Criar Paciente
+            </a>
+        {% elif formulario.status == 'pendente' %}
+            <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#linkModal">
+                <i class="bi bi-link-45deg"></i> Obter Link
+            </button>
+            
+            <!-- Modal para exibir o link -->
+            <div class="modal fade" id="linkModal" tabindex="-1" aria-labelledby="linkModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="linkModalLabel">
+                                Link do Formulário
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Compartilhe este link com o paciente:</p>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" id="token-url" value="{{ url_for('preencher_formulario_primeira_consulta', token=formulario.token, _external=True) }}" readonly>
+                                <button class="btn btn-primary" type="button" onclick="copyToClipboard()">
+                                    <i class="bi bi-clipboard"></i> Copiar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <i class="bi bi-info-circle"></i> Informações do Formulário
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p class="mb-1 text-muted small">ID do Formulário</p>
+                <p class="mb-3 fw-medium">{{ formulario.id }}</p>
+            </div>
+            <div class="col-md-6">
+                <p class="mb-1 text-muted small">Status</p>
+                <p class="mb-3 fw-medium">
+                    {% if formulario.status == 'pendente' %}
+                        <span class="badge bg-warning">Pendente</span>
+                    {% elif formulario.status == 'preenchido' %}
+                        <span class="badge bg-success">Preenchido</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="mb-1 text-muted small">Data de Criação</p>
+                <p class="mb-3 fw-medium">{{ format_datetime(formulario.data_criacao) }}</p>
+            </div>
+            <div class="col-md-6">
+                <p class="mb-1 text-muted small">Data de Preenchimento</p>
+                <p class="mb-3 fw-medium">
+                    {% if formulario.data_preenchimento %}
+                        {{ format_datetime(formulario.data_preenchimento) }}
+                    {% else %}
+                        <span class="text-muted">Não preenchido</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if formulario.status == 'preenchido' %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bi bi-person"></i> Informações Pessoais</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <p class="mb-1 text-muted small">Nome Completo</p>
+                            <p class="mb-3 fw-medium">{{ formulario.nome or 'Não informado' }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted small">CPF</p>
+                            <p class="mb-3 fw-medium">{{ formulario.cpf or 'Não informado' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted small">Data de Nascimento</p>
+                            <p class="mb-3 fw-medium">{% if formulario.nascimento %}{{ format_date(formulario.nascimento) }}{% else %}Não informada{% endif %}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted small">Telefone</p>
+                            <p class="mb-3 fw-medium">{{ formulario.telefone or 'Não informado' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted small">E-mail</p>
+                            <p class="mb-3 fw-medium">{{ formulario.email or 'Não informado' }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted small">Gênero</p>
+                            <p class="mb-3 fw-medium">
+                                {% if formulario.genero == 'masculino' %}
+                                    Masculino
+                                {% elif formulario.genero == 'feminino' %}
+                                    Feminino
+                                {% elif formulario.genero == 'outro' %}
+                                    Outro
+                                {% elif formulario.genero == 'prefiro_nao_dizer' %}
+                                    Prefiro não dizer
+                                {% else %}
+                                    Não informado
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <p class="mb-1 text-muted small">Endereço</p>
+                            <p class="mb-0 fw-medium">{{ formulario.endereco or 'Não informado' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bi bi-activity"></i> Informações de Saúde</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <p class="mb-1 text-muted small">Queixa Principal / Motivo da Consulta</p>
+                            <p class="mb-3">{{ formulario.queixa_principal or 'Não informado' }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted small">Doenças Preexistentes</p>
+                            <p class="mb-3">{{ formulario.doencas or 'Nenhuma registrada' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted small">Medicamentos em Uso</p>
+                            <p class="mb-3">{{ formulario.medicamentos or 'Nenhum registrado' }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted small">Alergias</p>
+                            <p class="mb-3">{{ formulario.alergias or 'Nenhuma registrada' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted small">Cirurgias</p>
+                            <p class="mb-0">{{ formulario.cirurgias or 'Nenhuma registrada' }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <p class="mb-1 text-muted small">Hábitos Relevantes</p>
+                            <p class="mb-3">{{ formulario.habitos or 'Nenhum registrado' }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <p class="mb-1 text-muted small">Observações Adicionais</p>
+                            <p class="mb-0">{{ formulario.observacoes or 'Nenhuma registrada' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-exclamation-circle text-warning mb-3" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+            </svg>
+            <h4>Este formulário ainda não foi preenchido</h4>
+            <p class="lead text-muted mb-4">O paciente ainda não preencheu o formulário de primeira consulta.</p>
+            
+            <div class="d-grid gap-2 col-md-6 mx-auto">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#linkModal">
+                    <i class="bi bi-link-45deg"></i> Obter Link do Formulário
+                </button>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<div class="mt-4">
+    <a href="{{ url_for('listar_formularios_primeira_consulta') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Voltar para a Lista
+    </a>
+    
+    {% if formulario.status == 'preenchido' %}
+        <a href="{{ url_for('criar_paciente_de_formulario', formulario_id=formulario.id) }}" class="btn btn-primary float-end">
+            <i class="bi bi-person-plus"></i> Criar Paciente
+        </a>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyToClipboard() {
+    var copyText = document.getElementById("token-url");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+    
+    // Feedback visual
+    let button = document.querySelector('#token-url').nextElementSibling;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="bi bi-check"></i> Copiado!';
+    button.classList.add('btn-success');
+    button.classList.remove('btn-primary');
+    
+    setTimeout(() => {
+        button.innerHTML = originalText;
+        button.classList.add('btn-primary');
+        button.classList.remove('btn-success');
+    }, 2000);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário Já Preenchido - Sistema Odontológico</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <div class="card mb-4">
+                    <div class="card-body p-5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" class="bi bi-info-circle-fill text-info mb-4" viewBox="0 0 16 16">
+                            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+                        </svg>
+                        
+                        <h1 class="display-5 mb-4">Formulário Já Preenchido</h1>
+                        
+                        <p class="lead mb-4">
+                            Este formulário já foi preenchido anteriormente. Não é possível enviar novamente as informações.
+                        </p>
+                        
+                        <div class="alert alert-success mb-5">
+                            <h4 class="alert-heading">Tudo certo!</h4>
+                            <p>
+                                Suas informações já foram registradas em nosso sistema e serão utilizadas pela equipe para preparar sua consulta.
+                            </p>
+                            <p class="mb-0">
+                                Caso precise atualizar alguma informação, entre em contato com a clínica.
+                            </p>
+                        </div>
+                        
+                        <div class="d-grid gap-2 col-md-6 mx-auto">
+                            <a href="#" class="btn btn-outline-secondary" onclick="window.close()">
+                                <i class="bi bi-x-lg"></i> Fechar Página
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-muted">
+                    <small>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hospital me-1" viewBox="0 0 16 16">
+                            <path d="M8.5 5.034v1.1l.953-.55.5.867L9 7l.953.55-.5.866-.953-.55v1.1h-1v-1.1l-.953.55-.5-.866L7 7l-.953-.55.5-.866.953.55v-1.1h1ZM7 2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H9v.5a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5V5H6.5a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5H7v-.5Z"/>
+                            <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2Zm2-1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H4Z"/>
+                        </svg>
+                        Sistema Odontológico &copy; 2025 - Todos os direitos reservados
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

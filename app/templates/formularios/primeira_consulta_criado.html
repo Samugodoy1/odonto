@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-check-circle"></i> Formulário de Primeira Consulta Criado
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-link-45deg text-primary" viewBox="0 0 16 16">
+                        <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"/>
+                        <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"/>
+                    </svg>
+                    <h4 class="mt-3">Link do Formulário Gerado com Sucesso</h4>
+                    <p class="text-muted">Compartilhe este link com o novo paciente para que ele preencha suas informações.</p>
+                </div>
+                
+                <div class="alert alert-info">
+                    <div class="input-group">
+                        <input type="text" id="token-url" class="form-control" value="{{ token_url }}" readonly>
+                        <button class="btn btn-primary" type="button" onclick="copyToClipboard()">
+                            <i class="bi bi-clipboard"></i> Copiar
+                        </button>
+                    </div>
+                    <small class="text-muted mt-2 d-block">Este link é único e será válido para o preenchimento de um único formulário.</small>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5>Instruções</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-check text-success me-2"></i> Envie o link para o paciente via WhatsApp, email ou SMS</li>
+                            <li><i class="bi bi-check text-success me-2"></i> O paciente preencherá suas informações básicas</li>
+                            <li><i class="bi bi-check text-success me-2"></i> Após preenchido, você poderá cadastrar o paciente no sistema</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>O que acontece depois?</h5>
+                        <p>Quando o paciente preencher o formulário, você receberá uma notificação na seção de formulários do sistema e poderá converter as informações em um cadastro de paciente.</p>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                        <i class="bi bi-house"></i> Voltar ao Dashboard
+                    </a>
+                    <a href="{{ url_for('listar_formularios_primeira_consulta') }}" class="btn btn-outline-secondary ms-2">
+                        <i class="bi bi-list-ul"></i> Ver Lista de Formulários
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyToClipboard() {
+    var copyText = document.getElementById("token-url");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+    
+    // Feedback visual
+    let button = document.querySelector('.btn-primary');
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="bi bi-check"></i> Copiado!';
+    button.classList.add('btn-success');
+    button.classList.remove('btn-primary');
+    
+    setTimeout(() => {
+        button.innerHTML = originalText;
+        button.classList.add('btn-primary');
+        button.classList.remove('btn-success');
+    }, 2000);
+}
+</script>
+{% endblock %}

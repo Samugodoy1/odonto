@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2">
+        <i class="bi bi-calendar-event"></i> Agenda
+    </h1>
+    <div class="btn-group">
+        <a href="{{ url_for('listar_pacientes') }}" class="btn btn-outline-primary">
+            <i class="bi bi-person-plus"></i> Novo Agendamento
+        </a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between">
+            <div>
+                <a href="{{ url_for('listar_agendamentos', data=(date_offset(data_atual, -1)).strftime('%Y-%m-%d')) }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-chevron-left"></i> Dia Anterior
+                </a>
+            </div>
+            <div>
+                <form action="{{ url_for('listar_agendamentos') }}" method="GET" class="d-flex">
+                    <input type="date" name="data" value="{{ data_atual.strftime('%Y-%m-%d') }}" class="form-control me-2">
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                </form>
+            </div>
+            <div>
+                <a href="{{ url_for('listar_agendamentos', data=(date_offset(data_atual, 1)).strftime('%Y-%m-%d')) }}" class="btn btn-outline-secondary">
+                    Próximo Dia <i class="bi bi-chevron-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-dark text-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Consultas do dia {{ format_date(data_atual) }}</h5>
+            <span class="badge bg-light text-dark">{{ agendamentos|length }} consultas</span>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        {% if agendamentos %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Hora</th>
+                            <th>Paciente</th>
+                            <th>Tipo de Consulta</th>
+                            <th>Observação</th>
+                            <th>Status</th>
+                            <th class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for agendamento in agendamentos %}
+                            <tr>
+                                <td class="fw-bold">{{ agendamento.hora_consulta }}</td>
+                                <td>
+                                    <a href="{{ url_for('detalhe_paciente', paciente_id=agendamento.paciente_id) }}" class="text-decoration-none">
+                                        {{ agendamento.paciente.nome }}
+                                    </a>
+                                </td>
+                                <td>{{ agendamento.tipo_consulta }}</td>
+                                <td>
+                                    {% if agendamento.observacao %}
+                                        {{ agendamento.observacao[:50] }}{% if agendamento.observacao|length > 50 %}...{% endif %}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if agendamento.status == 'agendada' %}
+                                        <span class="badge bg-primary">Agendada</span>
+                                    {% elif agendamento.status == 'concluida' %}
+                                        <span class="badge bg-success">Concluída</span>
+                                    {% elif agendamento.status == 'cancelada' %}
+                                        <span class="badge bg-danger">Cancelada</span>
+                                    {% elif agendamento.status == 'faltou' %}
+                                        <span class="badge bg-warning">Faltou</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('detalhe_paciente', paciente_id=agendamento.paciente_id) }}" class="btn btn-outline-primary" title="Ver paciente">
+                                            <i class="bi bi-person"></i>
+                                        </a>
+                                        <a href="{{ url_for('editar_agendamento', agendamento_id=agendamento.id) }}" class="btn btn-outline-secondary" title="Editar agendamento">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        
+                                        <!-- Botão de conclusão rápida para consultas agendadas -->
+                                        {% if agendamento.status == 'agendada' %}
+                                            <button type="button" class="btn btn-outline-success" title="Marcar como concluída" 
+                                                    data-bs-toggle="modal" data-bs-target="#concluirModal{{ agendamento.id }}">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
+                                            
+                                            <!-- Modal de confirmação -->
+                                            <div class="modal fade" id="concluirModal{{ agendamento.id }}" tabindex="-1" aria-labelledby="concluirModalLabel{{ agendamento.id }}" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="concluirModalLabel{{ agendamento.id }}">
+                                                                Concluir Consulta
+                                                            </h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                                        </div>
+                                                        <div class="modal-body text-start">
+                                                            <p>Deseja marcar a consulta a seguir como concluída?</p>
+                                                            <ul class="list-group list-group-flush mt-3">
+                                                                <li class="list-group-item"><strong>Paciente:</strong> {{ agendamento.paciente.nome }}</li>
+                                                                <li class="list-group-item"><strong>Horário:</strong> {{ agendamento.hora_consulta }}</li>
+                                                                <li class="list-group-item"><strong>Tipo:</strong> {{ agendamento.tipo_consulta }}</li>
+                                                            </ul>
+                                                            <p class="mt-3 mb-0 text-muted">Para registrar detalhes sobre essa consulta, clique em "Registrar Evolução".</p>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                            <form action="{{ url_for('editar_agendamento', agendamento_id=agendamento.id) }}" method="POST" class="d-inline">
+                                                                {{ form.hidden_tag() }}
+                                                                <input type="hidden" name="status" value="concluida">
+                                                                <input type="hidden" name="data_consulta" value="{{ agendamento.data_consulta }}">
+                                                                <input type="hidden" name="hora_consulta" value="{{ agendamento.hora_consulta }}">
+                                                                <input type="hidden" name="tipo_consulta" value="{{ agendamento.tipo_consulta }}">
+                                                                <input type="hidden" name="observacao" value="{{ agendamento.observacao }}">
+                                                                <button type="submit" class="btn btn-success">Marcar como Concluída</button>
+                                                            </form>
+                                                            <a href="{{ url_for('nova_evolucao', paciente_id=agendamento.paciente_id) }}" class="btn btn-primary">
+                                                                Registrar Evolução
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-calendar-x text-muted mb-3" viewBox="0 0 16 16">
+                    <path d="M6.146 7.146a.5.5 0 0 1 .708 0L8 8.293l1.146-1.147a.5.5 0 1 1 .708.708L8.707 9l1.147 1.146a.5.5 0 0 1-.708.708L8 9.707l-1.146 1.147a.5.5 0 0 1-.708-.708L7.293 9 6.146 7.854a.5.5 0 0 1 0-.708z"/>
+                    <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                </svg>
+                <h4 class="mb-2">Nenhuma consulta agendada</h4>
+                <p class="text-muted mb-4">Não há consultas agendadas para o dia {{ format_date(data_atual) }}.</p>
+                <a href="{{ url_for('listar_pacientes') }}" class="btn btn-primary">
+                    <i class="bi bi-person-plus"></i> Agendar Nova Consulta
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
+{% endblock %}

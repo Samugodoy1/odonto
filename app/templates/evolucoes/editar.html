@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('listar_pacientes') }}">Pacientes</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('detalhe_paciente', paciente_id=paciente.id) }}">{{ paciente.nome }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('listar_evolucoes', paciente_id=paciente.id) }}">Evoluções</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Editar Evolução</li>
+    </ol>
+</nav>
+
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h2">
+            <i class="bi bi-clipboard2-check"></i> Editar Evolução
+        </h1>
+        <p class="text-muted">Paciente: {{ paciente.nome }}{% if paciente.idade %} ({{ paciente.idade }} anos){% endif %}</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('editar_evolucao', evolucao_id=evolucao.id) }}">
+            {{ form.hidden_tag() }}
+            {{ form.paciente_id(value=paciente.id) }}
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        {{ form.data_evolucao(class="form-control", type="date") }}
+                        <label for="data_evolucao">Data *</label>
+                        {% if form.data_evolucao.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.data_evolucao.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        {{ form.supervisor(class="form-control", placeholder="Supervisor/Dentista") }}
+                        <label for="supervisor">Supervisor/Dentista</label>
+                        {% if form.supervisor.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.supervisor.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <div class="form-floating">
+                    {{ form.procedimento(class="form-control", placeholder="Procedimento") }}
+                    <label for="procedimento">Procedimento *</label>
+                    {% if form.procedimento.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.procedimento.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <div class="form-floating">
+                    {{ form.observacao(class="form-control", style="height: 100px", placeholder="Observação") }}
+                    <label for="observacao">Observação</label>
+                    {% if form.observacao.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.observacao.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <div class="form-floating">
+                    {{ form.detalhes(class="form-control", style="height: 150px", placeholder="Detalhes do Procedimento") }}
+                    <label for="detalhes">Detalhes do Procedimento</label>
+                    {% if form.detalhes.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.detalhes.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="form-text">
+                    Descreva em detalhes o procedimento realizado, incluindo materiais utilizados e técnicas aplicadas.
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('listar_evolucoes', paciente_id=paciente.id) }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Salvar Alterações
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

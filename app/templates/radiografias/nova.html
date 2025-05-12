@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('listar_pacientes') }}">Pacientes</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('detalhe_paciente', paciente_id=paciente.id) }}">{{ paciente.nome }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('listar_radiografias', paciente_id=paciente.id) }}">Radiografias</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Nova Radiografia</li>
+    </ol>
+</nav>
+
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h2">
+            <i class="bi bi-image-alt"></i> Nova Radiografia
+        </h1>
+        <p class="text-muted">Paciente: {{ paciente.nome }}{% if paciente.idade %} ({{ paciente.idade }} anos){% endif %}</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('nova_radiografia', paciente_id=paciente.id) }}" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            {{ form.paciente_id(value=paciente.id) }}
+            
+            <div class="mb-3">
+                <div class="form-floating">
+                    {{ form.nome_arquivo(class="form-control", placeholder="Nome/Identificação da Radiografia") }}
+                    <label for="nome_arquivo">Nome/Identificação da Radiografia *</label>
+                    {% if form.nome_arquivo.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.nome_arquivo.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="form-text">
+                    Ex: "Panorâmica Inicial", "Periapical Dente 26", "Interproximal Posterior"
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <div class="form-floating">
+                    {{ form.descricao(class="form-control", style="height: 150px", placeholder="Descrição") }}
+                    <label for="descricao">Descrição da Radiografia</label>
+                    {% if form.descricao.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.descricao.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="form-text">
+                    Descreva os achados radiográficos, regiões analisadas, e outras informações relevantes.
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label for="arquivo" class="form-label">Arquivo de Radiografia *</label>
+                {{ form.arquivo(class="form-control") }}
+                {% if form.arquivo.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.arquivo.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="form-text">
+                    Faça upload do arquivo de radiografia. Formatos permitidos: {{ allowed_extensions }}
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('listar_radiografias', paciente_id=paciente.id) }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Salvar Radiografia
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('listar_pacientes') }}">Pacientes</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ paciente.nome }}</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2">
+        <i class="bi bi-person"></i> {{ paciente.nome }}
+        {% if paciente.idade %}
+            <span class="badge bg-secondary fs-6">{{ paciente.idade }} anos</span>
+        {% endif %}
+    </h1>
+    <div class="btn-group">
+        <a href="{{ url_for('editar_paciente', paciente_id=paciente.id) }}" class="btn btn-outline-primary">
+            <i class="bi bi-pencil"></i> Editar
+        </a>
+        <a href="{{ url_for('novo_agendamento', paciente_id=paciente.id) }}" class="btn btn-outline-success">
+            <i class="bi bi-calendar-plus"></i> Agendar
+        </a>
+        <a href="{{ url_for('enviar_anamnese', paciente_id=paciente.id) }}" class="btn btn-outline-info">
+            <i class="bi bi-send"></i> Enviar Anamnese
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="bi bi-info-circle"></i> Informações Pessoais</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted small">CPF</p>
+                        <p class="mb-3 fw-medium">{{ paciente.cpf or 'Não informado' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted small">Data de Nascimento</p>
+                        <p class="mb-3 fw-medium">{% if paciente.nascimento %}{{ format_date(paciente.nascimento) }}{% else %}Não informada{% endif %}</p>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted small">Telefone</p>
+                        <p class="mb-3 fw-medium">{{ paciente.telefone or 'Não informado' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted small">E-mail</p>
+                        <p class="mb-3 fw-medium">{{ paciente.email or 'Não informado' }}</p>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted small">Gênero</p>
+                        <p class="mb-3 fw-medium">
+                            {% if paciente.genero == 'masculino' %}
+                                Masculino
+                            {% elif paciente.genero == 'feminino' %}
+                                Feminino
+                            {% elif paciente.genero == 'outro' %}
+                                Outro
+                            {% elif paciente.genero == 'prefiro_nao_dizer' %}
+                                Prefiro não dizer
+                            {% else %}
+                                Não informado
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted small">Endereço</p>
+                        <p class="mb-3 fw-medium">{{ paciente.endereco or 'Não informado' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="bi bi-activity"></i> Histórico Médico</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted small">Doenças Preexistentes</p>
+                        <p class="mb-3">{{ paciente.doencas or 'Nenhuma registrada' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted small">Medicamentos em Uso</p>
+                        <p class="mb-3">{{ paciente.medicamentos or 'Nenhum registrado' }}</p>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted small">Alergias</p>
+                        <p class="mb-3">{{ paciente.alergias or 'Nenhuma registrada' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted small">Cirurgias</p>
+                        <p class="mb-0">{{ paciente.cirurgias or 'Nenhuma registrada' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0"><i class="bi bi-calendar-event"></i> Próximos Agendamentos</h5>
+                <a href="{{ url_for('novo_agendamento', paciente_id=paciente.id) }}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-plus"></i> Novo Agendamento
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Data</th>
+                            <th>Hora</th>
+                            <th>Tipo de Consulta</th>
+                            <th>Observação</th>
+                            <th>Status</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if proximos_agendamentos %}
+                            {% for agendamento in proximos_agendamentos %}
+                                <tr>
+                                    <td>{{ format_date(agendamento.data_consulta) }}</td>
+                                    <td>{{ agendamento.hora_consulta }}</td>
+                                    <td>{{ agendamento.tipo_consulta }}</td>
+                                    <td>{{ agendamento.observacao or '' }}</td>
+                                    <td>
+                                        {% if agendamento.status == 'agendada' %}
+                                            <span class="badge bg-primary">Agendada</span>
+                                        {% elif agendamento.status == 'concluida' %}
+                                            <span class="badge bg-success">Concluída</span>
+                                        {% elif agendamento.status == 'cancelada' %}
+                                            <span class="badge bg-danger">Cancelada</span>
+                                        {% elif agendamento.status == 'faltou' %}
+                                            <span class="badge bg-warning">Faltou</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{{ url_for('editar_agendamento', agendamento_id=agendamento.id) }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-3">Nenhum agendamento futuro para este paciente.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0"><i class="bi bi-clipboard2-pulse"></i> Evolução do Paciente</h5>
+                <a href="{{ url_for('nova_evolucao', paciente_id=paciente.id) }}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-plus"></i> Nova Evolução
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Data</th>
+                            <th>Procedimento</th>
+                            <th>Supervisor</th>
+                            <th>Observação</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if evolucoes %}
+                            {% for evolucao in evolucoes %}
+                                <tr>
+                                    <td>{{ format_date(evolucao.data) }}</td>
+                                    <td>{{ evolucao.procedimento }}</td>
+                                    <td>{{ evolucao.supervisor or '' }}</td>
+                                    <td>{{ evolucao.observacao or '' }}</td>
+                                    <td class="text-end">
+                                        <a href="{{ url_for('editar_evolucao', evolucao_id=evolucao.id) }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-3">Nenhuma evolução registrada para este paciente.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            {% if evolucoes %}
+                <div class="card-footer text-center">
+                    <a href="{{ url_for('listar_evolucoes', paciente_id=paciente.id) }}" class="btn btn-sm btn-outline-primary">
+                        Ver todas as evoluções
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0"><i class="bi bi-image"></i> Radiografias</h5>
+                <a href="{{ url_for('nova_radiografia', paciente_id=paciente.id) }}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-plus"></i> Nova Radiografia
+                </a>
+            </div>
+            <div class="card-body">
+                {% if radiografias %}
+                    <div class="row g-3">
+                        {% for radiografia in radiografias %}
+                            <div class="col-md-4">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <div class="text-center mb-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-file-earmark-medical text-primary" viewBox="0 0 16 16">
+                                              <path d="M7.5 5.5a.5.5 0 0 0-1 0v.634l-.549-.317a.5.5 0 1 0-.5.866L6 7l-.549.317a.5.5 0 1 0 .5.866l.549-.317V8.5a.5.5 0 1 0 1 0v-.634l.549.317a.5.5 0 1 0 .5-.866L8 7l.549-.317a.5.5 0 1 0-.5-.866l-.549.317V5.5zm-2 4.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zm0 2a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z"/>
+                                              <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+                                            </svg>
+                                        </div>
+                                        <h5 class="card-title text-center">{{ radiografia.nome_arquivo }}</h5>
+                                        <p class="card-text small text-muted text-center">{{ format_date(radiografia.data_upload) }}</p>
+                                        {% if radiografia.descricao %}
+                                            <p class="card-text mt-2">{{ radiografia.descricao }}</p>
+                                        {% endif %}
+                                        <div class="mt-3 text-center">
+                                            <a href="{{ url_for('editar_radiografia', radiografia_id=radiografia.id) }}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="bi bi-pencil"></i> Editar
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-image text-muted mb-3" viewBox="0 0 16 16">
+                            <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                            <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/>
+                        </svg>
+                        <p class="text-muted">Nenhuma radiografia registrada para este paciente.</p>
+                    </div>
+                {% endif %}
+            </div>
+            {% if radiografias %}
+                <div class="card-footer text-center">
+                    <a href="{{ url_for('listar_radiografias', paciente_id=paciente.id) }}" class="btn btn-sm btn-outline-primary">
+                        Ver todas as radiografias
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

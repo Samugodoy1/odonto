@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('listar_formularios_primeira_consulta') }}">Formulários de Primeira Consulta</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('detalhe_formulario_primeira_consulta', formulario_id=formulario.id) }}">Detalhes do Formulário</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Criar Paciente</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-person-plus"></i> Criar Paciente a partir do Formulário
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-4">
+                    <div class="d-flex">
+                        <div class="me-3">
+                            <i class="bi bi-info-circle-fill fs-4"></i>
+                        </div>
+                        <div>
+                            <h5>Informações do Formulário de Primeira Consulta</h5>
+                            <p class="mb-0">Os dados preenchidos pelo paciente no formulário foram importados automaticamente. Você pode revisá-los e fazer ajustes necessários antes de criar o cadastro do paciente.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <form method="POST" action="{{ url_for('criar_paciente_de_formulario', formulario_id=formulario.id) }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="form-floating">
+                                {{ form.nome(class="form-control", placeholder="Nome do paciente") }}
+                                <label for="nome">Nome Completo *</label>
+                                {% if form.nome.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.nome.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                {{ form.nascimento(class="form-control", type="date") }}
+                                <label for="nascimento">Data de Nascimento</label>
+                                {% if form.nascimento.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.nascimento.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                {{ form.cpf(class="form-control", placeholder="CPF") }}
+                                <label for="cpf">CPF</label>
+                                {% if form.cpf.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.cpf.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                {{ form.genero(class="form-select") }}
+                                <label for="genero">Gênero</label>
+                                {% if form.genero.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.genero.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {{ form.telefone(class="form-control", placeholder="Telefone") }}
+                                <label for="telefone">Telefone</label>
+                                {% if form.telefone.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.telefone.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {{ form.email(class="form-control", placeholder="E-mail") }}
+                                <label for="email">E-mail</label>
+                                {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.email.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="form-floating">
+                                {{ form.endereco(class="form-control", placeholder="Endereço") }}
+                                <label for="endereco">Endereço</label>
+                                {% if form.endereco.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.endereco.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {{ form.doencas(class="form-control", style="height: 100px", placeholder="Doenças") }}
+                                <label for="doencas">Doenças Preexistentes</label>
+                                {% if form.doencas.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.doencas.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {{ form.medicamentos(class="form-control", style="height: 100px", placeholder="Medicamentos") }}
+                                <label for="medicamentos">Medicamentos em Uso</label>
+                                {% if form.medicamentos.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.medicamentos.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {{ form.alergias(class="form-control", style="height: 100px", placeholder="Alergias") }}
+                                <label for="alergias">Alergias</label>
+                                {% if form.alergias.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.alergias.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {{ form.cirurgias(class="form-control", style="height: 100px", placeholder="Cirurgias") }}
+                                <label for="cirurgias">Histórico de Cirurgias</label>
+                                {% if form.cirurgias.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.cirurgias.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {{ form.habitos(class="form-control", style="height: 100px", placeholder="Hábitos") }}
+                                <label for="habitos">Hábitos Relevantes</label>
+                                {% if form.habitos.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.habitos.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {{ form.observacoes(class="form-control", style="height: 100px", placeholder="Observações") }}
+                                <label for="observacoes">Observações Adicionais</label>
+                                {% if form.observacoes.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.observacoes.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="{{ url_for('detalhe_formulario_primeira_consulta', formulario_id=formulario.id) }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Voltar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-person-plus"></i> Criar Paciente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

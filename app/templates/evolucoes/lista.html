@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('listar_pacientes') }}">Pacientes</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('detalhe_paciente', paciente_id=paciente.id) }}">{{ paciente.nome }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Evoluções</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2">
+        <i class="bi bi-clipboard2-pulse"></i> Evoluções: {{ paciente.nome }}
+        {% if paciente.idade %}
+            <span class="badge bg-secondary fs-6">{{ paciente.idade }} anos</span>
+        {% endif %}
+    </h1>
+    <a href="{{ url_for('nova_evolucao', paciente_id=paciente.id) }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Nova Evolução
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        {% if evolucoes %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">Data</th>
+                            <th scope="col">Procedimento</th>
+                            <th scope="col">Supervisor</th>
+                            <th scope="col">Observação</th>
+                            <th scope="col" class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for evolucao in evolucoes %}
+                            <tr>
+                                <td>{{ format_date(evolucao.data) }}</td>
+                                <td>{{ evolucao.procedimento }}</td>
+                                <td>{{ evolucao.supervisor or '-' }}</td>
+                                <td>
+                                    {% if evolucao.observacao %}
+                                        {{ evolucao.observacao[:50] }}{% if evolucao.observacao|length > 50 %}...{% endif %}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm">
+                                        <button type="button" class="btn btn-outline-primary" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#evolucaoModal{{ evolucao.id }}">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <a href="{{ url_for('editar_evolucao', evolucao_id=evolucao.id) }}" class="btn btn-outline-secondary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <!-- Modal de detalhes -->
+                            <div class="modal fade" id="evolucaoModal{{ evolucao.id }}" tabindex="-1" aria-labelledby="evolucaoModalLabel{{ evolucao.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="evolucaoModalLabel{{ evolucao.id }}">
+                                                Evolução: {{ format_date(evolucao.data) }}
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <p class="fw-bold mb-1">Procedimento:</p>
+                                                    <p>{{ evolucao.procedimento }}</p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p class="fw-bold mb-1">Supervisor:</p>
+                                                    <p>{{ evolucao.supervisor or 'Não informado' }}</p>
+                                                </div>
+                                            </div>
+                                            
+                                            {% if evolucao.observacao %}
+                                                <div class="mb-3">
+                                                    <p class="fw-bold mb-1">Observação:</p>
+                                                    <p>{{ evolucao.observacao }}</p>
+                                                </div>
+                                            {% endif %}
+                                            
+                                            {% if evolucao.detalhes %}
+                                                <div>
+                                                    <p class="fw-bold mb-1">Detalhes do Procedimento:</p>
+                                                    <p>{{ nl2br(evolucao.detalhes) | safe }}</p>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                            <a href="{{ url_for('editar_evolucao', evolucao_id=evolucao.id) }}" class="btn btn-primary">Editar</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-clipboard2-x text-muted mb-3" viewBox="0 0 16 16">
+                    <path d="M9.5 0a.5.5 0 0 1 .5.5.5.5 0 0 0 .5.5.5.5 0 0 1 .5.5V2a.5.5 0 0 1-.5.5h-5A.5.5 0 0 1 5 2v-.5a.5.5 0 0 1 .5-.5.5.5 0 0 0 .5-.5.5.5 0 0 1 .5-.5h3Z"/>
+                    <path d="M3 2.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 0 0-1h-.5A1.5 1.5 0 0 0 2 2.5v12A1.5 1.5 0 0 0 3.5 16h9a1.5 1.5 0 0 0 1.5-1.5v-12A1.5 1.5 0 0 0 12.5 1H12a.5.5 0 0 0 0 1h.5a.5.5 0 0 1 .5.5v12a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5v-12Z"/>
+                    <path d="M8 8.293 6.854 7.146a.5.5 0 1 0-.708.708L7.293 9l-1.147 1.146a.5.5 0 0 0 .708.708L8 9.707l1.146 1.147a.5.5 0 0 0 .708-.708L8.707 9l1.147-1.146a.5.5 0 0 0-.708-.708L8 8.293Z"/>
+                </svg>
+                <h4 class="mb-2">Nenhuma evolução registrada</h4>
+                <p class="text-muted mb-4">Este paciente ainda não possui evoluções registradas.</p>
+                <a href="{{ url_for('nova_evolucao', paciente_id=paciente.id) }}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i> Registrar Nova Evolução
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{{ url_for('detalhe_paciente', paciente_id=paciente.id) }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Voltar para Detalhes do Paciente
+    </a>
+</div>
+{% endblock %}
