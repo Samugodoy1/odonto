@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('listar_pacientes') }}">Pacientes</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('detalhe_paciente', paciente_id=paciente.id) }}">{{ paciente.nome }}</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('listar_radiografias', paciente_id=paciente.id) }}">Radiografias</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Nova</li>
+            </ol>
+        </nav>
+        <h1 class="h2">
+            <i class="bi bi-cloud-upload"></i> Nova Radiografia
+        </h1>
+        <p class="text-muted">Paciente: {{ paciente.nome }}</p>
+    </div>
+    <a href="{{ url_for('listar_radiografias', paciente_id=paciente.id) }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Voltar
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('nova_radiografia', paciente_id=paciente.id) }}" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    {{ form.paciente_id(value=paciente.id) }}
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> A funcionalidade de upload de arquivo será implementada em uma versão futura. Por enquanto, registre apenas as informações da radiografia.
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="nome_arquivo" class="form-label">Nome/Identificação da Radiografia*</label>
+                        {{ form.nome_arquivo(class="form-control " + ("is-invalid" if form.nome_arquivo.errors else ""), id="nome_arquivo", placeholder="Ex: Panorâmica 12/05/2023") }}
+                        {% if form.nome_arquivo.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.nome_arquivo.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Identifique a radiografia (tipo, data, região, etc).</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição</label>
+                        {{ form.descricao(class="form-control " + ("is-invalid" if form.descricao.errors else ""), id="descricao", rows=4) }}
+                        {% if form.descricao.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.descricao.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Adicione uma descrição ou observações sobre a radiografia.</div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ url_for('listar_radiografias', paciente_id=paciente.id) }}" class="btn btn-outline-secondary me-2">Cancelar</a>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

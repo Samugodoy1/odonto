@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2">
+        <i class="bi bi-person-plus"></i> Novo Usuário
+    </h1>
+    <a href="{{ url_for('listar_usuarios') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Voltar
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('novo_usuario') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome Completo*</label>
+                        {{ form.nome(class="form-control " + ("is-invalid" if form.nome.errors else ""), id="nome") }}
+                        {% if form.nome.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.nome.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Nome de Usuário*</label>
+                        {{ form.username(class="form-control " + ("is-invalid" if form.username.errors else ""), id="username") }}
+                        {% if form.username.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.username.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">O nome de usuário será utilizado para login no sistema. Use apenas letras, números e underscore (_).</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">E-mail*</label>
+                        {{ form.email(class="form-control " + ("is-invalid" if form.email.errors else ""), id="email", type="email") }}
+                        {% if form.email.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.email.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="password" class="form-label">Senha*</label>
+                            {{ form.password(class="form-control " + ("is-invalid" if form.password.errors else ""), id="password") }}
+                            {% if form.password.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.password.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="confirm_password" class="form-label">Confirmar Senha*</label>
+                            {{ form.confirm_password(class="form-control " + ("is-invalid" if form.confirm_password.errors else ""), id="confirm_password") }}
+                            {% if form.confirm_password.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.confirm_password.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="tipo" class="form-label">Tipo de Usuário*</label>
+                            {{ form.tipo(class="form-select " + ("is-invalid" if form.tipo.errors else ""), id="tipo") }}
+                            {% if form.tipo.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.tipo.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mt-4 pt-2">
+                                {{ form.ativo(class="form-check-input", id="ativo") }}
+                                <label class="form-check-label" for="ativo">Usuário Ativo</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ url_for('listar_usuarios') }}" class="btn btn-outline-secondary me-2">Cancelar</a>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2">
+        <i class="bi bi-people"></i> Usuários do Sistema
+    </h1>
+    <a href="{{ url_for('novo_usuario') }}" class="btn btn-primary">
+        <i class="bi bi-person-plus"></i> Novo Usuário
+    </a>
+</div>
+
+<div class="card shadow">
+    <div class="card-body p-0">
+        {% if usuarios %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nome</th>
+                        <th>Nome de Usuário</th>
+                        <th>E-mail</th>
+                        <th>Tipo</th>
+                        <th>Status</th>
+                        <th>Último Acesso</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td>{{ usuario.nome }}</td>
+                        <td>{{ usuario.username }}</td>
+                        <td>{{ usuario.email }}</td>
+                        <td>
+                            {% if usuario.tipo == 'admin' %}
+                            <span class="badge bg-danger">Administrador</span>
+                            {% else %}
+                            <span class="badge bg-primary">Dentista</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if usuario.ativo %}
+                            <span class="badge bg-success">Ativo</span>
+                            {% else %}
+                            <span class="badge bg-danger">Inativo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if usuario.ultimo_acesso %}
+                            {{ format_datetime(usuario.ultimo_acesso) }}
+                            {% else %}
+                            <span class="text-muted">Nunca acessou</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if current_user.id != usuario.id %}
+                            <a href="{{ url_for('alternar_status_usuario', usuario_id=usuario.id) }}" class="btn btn-sm btn-outline-{{ 'danger' if usuario.ativo else 'success' }}">
+                                {% if usuario.ativo %}
+                                <i class="bi bi-person-x"></i> Desativar
+                                {% else %}
+                                <i class="bi bi-person-check"></i> Ativar
+                                {% endif %}
+                            </a>
+                            {% else %}
+                            <span class="text-muted">Usuário atual</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-people text-muted display-4"></i>
+            <h5 class="mt-3">Nenhum usuário cadastrado</h5>
+            <p class="text-muted">Não há usuários cadastrados no sistema.</p>
+            <a href="{{ url_for('novo_usuario') }}" class="btn btn-primary mt-2">
+                <i class="bi bi-person-plus"></i> Cadastrar Usuário
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

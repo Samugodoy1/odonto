@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2">
+        <i class="bi bi-person-plus"></i> Novo Paciente
+    </h1>
+    <a href="{{ url_for('listar_pacientes') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Voltar
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('cadastrar_paciente') }}" class="row g-3">
+            {{ form.hidden_tag() }}
+            
+            <div class="col-md-12">
+                <h4 class="border-bottom pb-2 mb-3">Dados Pessoais</h4>
+            </div>
+            
+            <div class="col-md-6">
+                <label for="nome" class="form-label">Nome Completo*</label>
+                {{ form.nome(class="form-control " + ("is-invalid" if form.nome.errors else ""), id="nome") }}
+                {% if form.nome.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.nome.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-md-3">
+                <label for="nascimento" class="form-label">Data de Nascimento</label>
+                {{ form.nascimento(class="form-control " + ("is-invalid" if form.nascimento.errors else ""), id="nascimento", type="date") }}
+                {% if form.nascimento.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.nascimento.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-md-3">
+                <label for="genero" class="form-label">Gênero</label>
+                {{ form.genero(class="form-select " + ("is-invalid" if form.genero.errors else ""), id="genero") }}
+                {% if form.genero.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.genero.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-md-4">
+                <label for="cpf" class="form-label">CPF</label>
+                {{ form.cpf(class="form-control " + ("is-invalid" if form.cpf.errors else ""), id="cpf", placeholder="000.000.000-00") }}
+                {% if form.cpf.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.cpf.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-md-4">
+                <label for="telefone" class="form-label">Telefone</label>
+                {{ form.telefone(class="form-control " + ("is-invalid" if form.telefone.errors else ""), id="telefone", placeholder="(00) 00000-0000") }}
+                {% if form.telefone.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.telefone.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-md-4">
+                <label for="endereco" class="form-label">Endereço</label>
+                {{ form.endereco(class="form-control " + ("is-invalid" if form.endereco.errors else ""), id="endereco") }}
+                {% if form.endereco.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.endereco.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-md-12">
+                <h4 class="border-bottom pb-2 mb-3 mt-3">Histórico Médico</h4>
+            </div>
+            
+            <div class="col-md-6">
+                <label for="doencas" class="form-label">Doenças Preexistentes</label>
+                {{ form.doencas(class="form-control " + ("is-invalid" if form.doencas.errors else ""), id="doencas", rows=3) }}
+                {% if form.doencas.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.doencas.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="form-text">Liste as doenças preexistentes do paciente.</div>
+            </div>
+            
+            <div class="col-md-6">
+                <label for="medicamentos" class="form-label">Medicamentos em Uso</label>
+                {{ form.medicamentos(class="form-control " + ("is-invalid" if form.medicamentos.errors else ""), id="medicamentos", rows=3) }}
+                {% if form.medicamentos.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.medicamentos.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="form-text">Liste os medicamentos que o paciente utiliza regularmente.</div>
+            </div>
+            
+            <div class="col-md-6">
+                <label for="alergias" class="form-label">Alergias</label>
+                {{ form.alergias(class="form-control " + ("is-invalid" if form.alergias.errors else ""), id="alergias", rows=3) }}
+                {% if form.alergias.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.alergias.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="form-text">Liste as alergias do paciente (medicamentos, alimentos, etc).</div>
+            </div>
+            
+            <div class="col-md-6">
+                <label for="cirurgias" class="form-label">Histórico de Cirurgias</label>
+                {{ form.cirurgias(class="form-control " + ("is-invalid" if form.cirurgias.errors else ""), id="cirurgias", rows=3) }}
+                {% if form.cirurgias.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.cirurgias.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="form-text">Liste as cirurgias realizadas pelo paciente.</div>
+            </div>
+            
+            <div class="col-md-6">
+                <label for="habitos" class="form-label">Hábitos Relevantes</label>
+                {{ form.habitos(class="form-control " + ("is-invalid" if form.habitos.errors else ""), id="habitos", rows=3) }}
+                {% if form.habitos.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.habitos.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="form-text">Liste hábitos relevantes como tabagismo, etilismo, etc.</div>
+            </div>
+            
+            <div class="col-md-6">
+                <label for="observacoes" class="form-label">Observações Adicionais</label>
+                {{ form.observacoes(class="form-control " + ("is-invalid" if form.observacoes.errors else ""), id="observacoes", rows=3) }}
+                {% if form.observacoes.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.observacoes.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-12 mt-4">
+                <div class="d-flex justify-content-end">
+                    <a href="{{ url_for('listar_pacientes') }}" class="btn btn-outline-secondary me-2">Cancelar</a>
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Format CPF input
+    document.getElementById('cpf').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 11) value = value.substring(0, 11);
+        
+        if (value.length > 9) {
+            value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{1,2})$/, "$1.$2.$3-$4");
+        } else if (value.length > 6) {
+            value = value.replace(/^(\d{3})(\d{3})(\d{1,3})$/, "$1.$2.$3");
+        } else if (value.length > 3) {
+            value = value.replace(/^(\d{3})(\d{1,3})$/, "$1.$2");
+        }
+        
+        e.target.value = value;
+    });
+    
+    // Format phone input
+    document.getElementById('telefone').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 11) value = value.substring(0, 11);
+        
+        if (value.length > 10) {
+            value = value.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+        } else if (value.length > 6) {
+            value = value.replace(/^(\d{2})(\d{4})(\d{1,4})$/, "($1) $2-$3");
+        } else if (value.length > 2) {
+            value = value.replace(/^(\d{2})(\d{1,5})$/, "($1) $2");
+        }
+        
+        e.target.value = value;
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('listar_pacientes') }}">Pacientes</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('detalhe_paciente', paciente_id=paciente.id) }}">{{ paciente.nome }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Novo Formulário</li>
+            </ol>
+        </nav>
+        <h1 class="h2">
+            <i class="bi bi-file-earmark-plus"></i> Novo Formulário Pré-Consulta
+        </h1>
+        <p class="text-muted">Paciente: {{ paciente.nome }}</p>
+    </div>
+    <a href="{{ url_for('detalhe_paciente', paciente_id=paciente.id) }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Voltar
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('novo_formulario', paciente_id=paciente.id) }}">
+            {{ form.hidden_tag() }}
+            {{ form.paciente_id(value=paciente.id) }}
+            
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <label for="agendamento_id" class="form-label">Associar a uma Consulta (opcional)</label>
+                    {{ form.agendamento_id(class="form-select") }}
+                    <div class="form-text">Associar o formulário a uma consulta agendada ajuda a organizar as informações.</div>
+                </div>
+                
+                <div class="col-md-12">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> O formulário será pré-preenchido com informações já existentes do paciente.
+                        Você pode adicionar informações específicas para este formulário nos campos abaixo.
+                    </div>
+                </div>
+                
+                <div class="col-md-12">
+                    <label for="historico_medico" class="form-label">Histórico Médico Adicional</label>
+                    {{ form.historico_medico(class="form-control " + ("is-invalid" if form.historico_medico.errors else ""), id="historico_medico", rows=3) }}
+                    {% if form.historico_medico.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.historico_medico.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-12">
+                    <label for="queixas" class="form-label">Queixas a Investigar</label>
+                    {{ form.queixas(class="form-control " + ("is-invalid" if form.queixas.errors else ""), id="queixas", rows=3) }}
+                    {% if form.queixas.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.queixas.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-12">
+                    <label for="medicamentos_atuais" class="form-label">Medicamentos em Uso</label>
+                    {{ form.medicamentos_atuais(class="form-control " + ("is-invalid" if form.medicamentos_atuais.errors else ""), id="medicamentos_atuais", rows=3, placeholder="Serão pré-preenchidos com os dados do cadastro do paciente") }}
+                    {% if form.medicamentos_atuais.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.medicamentos_atuais.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-12">
+                    <label for="alergias_novas" class="form-label">Alergias</label>
+                    {{ form.alergias_novas(class="form-control " + ("is-invalid" if form.alergias_novas.errors else ""), id="alergias_novas", rows=3, placeholder="Serão pré-preenchidas com os dados do cadastro do paciente") }}
+                    {% if form.alergias_novas.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.alergias_novas.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-12">
+                    <label for="observacoes" class="form-label">Observações Adicionais</label>
+                    {{ form.observacoes(class="form-control " + ("is-invalid" if form.observacoes.errors else ""), id="observacoes", rows=3) }}
+                    {% if form.observacoes.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.observacoes.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-12 mt-3">
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ url_for('detalhe_paciente', paciente_id=paciente.id) }}" class="btn btn-outline-secondary me-2">Cancelar</a>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

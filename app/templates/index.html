@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body text-center p-5">
+                <h1 class="display-5 mb-4">Sistema Odontológico</h1>
+                <p class="lead">
+                    Bem-vindo ao sistema de gerenciamento odontológico. 
+                    Aqui você pode gerenciar pacientes, consultas e todo o histórico clínico.
+                </p>
+                <div class="mt-4">
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg px-4">
+                            <i class="bi bi-speedometer2"></i> Acessar Dashboard
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg px-4">
+                            <i class="bi bi-box-arrow-in-right"></i> Entrar no Sistema
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
